@@ -49,7 +49,7 @@ class Weather:
         return woeid
 
 
-    ## Get the weather 5 day forecast for the weather
+    ## Get the 5 day forecast for the weather
     def getWeatherForecast(self, woeid):
         fiveDayForecast = re.get(url='https://www.metaweather.com/api/location/'+ str(woeid) +'/')
         fiveDayForecast_json = fiveDayForecast.json()
