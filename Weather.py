@@ -8,8 +8,9 @@ import math
 ## https://www.metaweather.com/api/location/search/?query=london
 ## https://www.metaweather.com/api/location/554890/
 
+
+## Get json weather data
 class Weather:
-    ## Get json weather data
 
     def __init__(self):
         self.ip_address = re.get(url = 'https://freegeoip.app/json')
@@ -29,6 +30,12 @@ class Weather:
 
         return weather_data_json
 
+    def getIP(self):
+        self.ip_address = re.get(url = 'https://freegeoip.app/json')
+        self.ip_address_json = self.ip_address.json()
+
+        return self.ip_address_json['ip']
+
     def getWeatherFromCity(self,city):
         weatherData=re.get(url='https://www.metaweather.com/api/location/search/?query='+city)
         weather_data_json = weatherData.json()
@@ -45,7 +52,7 @@ class Weather:
     ## Get WOEID from json
     def getWOEIDFromJSON(self, weather_json):
         woeid = weather_json[0]['woeid']
-    
+
         return woeid
 
 
@@ -56,18 +63,18 @@ class Weather:
         return fiveDayForecast_json
 
 
-    def getNearestBrewery(self, city):
-        breweryData = re.get(url='https://api.openbrewerydb.org/breweries/search?query='+city)
-        brewery_data_json = breweryData.json()
-
-        return brewery_data_json
-
-
     ## Save the IP 
-    def write_ip_to_file(self, json):
+    def write_ip_to_file(self):
+        get_ip = re.get(url = "https://freegeoip.app/json/")
+        get_ip_json = get_ip.json()
+
+
         file = open('ip_address.txt', 'a')
-        file.write(json["ip"] + '\n')
+        file.truncate(0)
+        file.write(get_ip_json["ip"])
         file.close()
+
+        return get_ip_json['ip']
 
 
     ## Returns the saved ip from the file

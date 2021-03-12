@@ -33,6 +33,7 @@ class FirstForm(npyscreen.ActionFormMinimal):
         # If we get to making a second window
         #self.add(npyscreen.ButtonPress, name = "Switch", when_pressed_function = self.btn_press_switch, relx = 2)
 
+        ## Draw a sun in the bottom
         for i in range(0,7):
             self.draw_sun((i*15) + 7,21)
 
@@ -43,19 +44,20 @@ class FirstForm(npyscreen.ActionFormMinimal):
     def btn_press(self):
         w = Weather()
         weather = w.getWeatherFromCityIP()
-        city =  weather[0]['title']
-        woeid = w.getWOEIDFromJSON(weather)
-        five_day_forecast = w.getWeatherForecast(woeid)
+        ip = w.get_ip_from_file()
 
-        weather_today = five_day_forecast["consolidated_weather"][0]["weather_state_name"]
-        weather_tommorow = five_day_forecast["consolidated_weather"][1]["weather_state_name"]
+        if ip == '-1':
+            npyscreen.notify_confirm("No IP saved please save one before using:(", title="No saved IP" + city + " IP: " + ip, wrap=True, wide=True, editw=1)
+        else:
+            city =  weather[0]['title']
+            woeid = w.getWOEIDFromJSON(weather)
+            five_day_forecast = w.getWeatherForecast(woeid)
+            long_string = self.week_day_forecast(five_day_forecast)
+            
 
-        weather_today_temperature = five_day_forecast["consolidated_weather"][0]["the_temp"]
-        weather_tommorow_temperature = five_day_forecast["consolidated_weather"][1]["the_temp"]
 
-
-        
-        npyscreen.notify_confirm("Weather today is " + weather_today + " and the temperature is " + str(weather_today_temperature)[:3] + "\n" + "Weather tommorow is " + weather_tommorow + " and the temperature is " + str(weather_tommorow_temperature)[:3], title="Weather Forecast for " + city, wrap=True, wide=True, editw=1)
+            
+            npyscreen.notify_confirm(long_string, title="Weather forecast for " + city + " IP: " + ip, wrap=True, wide=True, editw=1)
     
 
 
@@ -70,22 +72,9 @@ class FirstForm(npyscreen.ActionFormMinimal):
             if weather and "title" in weather[0]:
                 woeid = w.getWOEIDFromJSON(weather)
                 five_day_forecast = w.getWeatherForecast(woeid)
-                long_string = ''
+                long_string = self.week_day_forecast(five_day_forecast)
                 
-                for i in range(0,4):
-                    list_weather = five_day_forecast["consolidated_weather"][i]["weather_state_name"]
-                    list_temp = str(five_day_forecast["consolidated_weather"][i]["the_temp"])
-                    long_string += "Weather is " + list_weather[i] + " cxivjixcjvixcjvixcjvixcjivjxciv" +"\n"  
-                    #" and the temperature is " + str(list_temp[i])[:3] + "\n"
-
-                weather_today = five_day_forecast["consolidated_weather"][0]["weather_state_name"]
-                weather_tommorow = five_day_forecast["consolidated_weather"][1]["weather_state_name"]
-
-                weather_today_temperature = five_day_forecast["consolidated_weather"][0]["the_temp"]
-                weather_tommorow_temperature = five_day_forecast["consolidated_weather"][1]["the_temp"]
-                
-                npyscreen.notify_confirm(long_string, title="Weather is", wrap=True, wide=True, editw=1)  
-                #npyscreen.notify_confirm("Weather today is " + weather_today + " and the temperature is " + str(weather_today_temperature)[:3] + "\n" + "Weather tommorow is " + weather_tommorow + " and the temperature is " + str(weather_tommorow_temperature)[:3], title="Weather forecast for " + city, wrap=True, wide=True, editw=1)  
+                npyscreen.notify_confirm(long_string, title="Weather forecast for " + city , wrap=True, wide=True, editw=1)  
             
             else:
                 npyscreen.notify_confirm("Could not fetch data from that city", title="Weather is", wrap=True, wide=True, editw=1)  
@@ -96,12 +85,28 @@ class FirstForm(npyscreen.ActionFormMinimal):
         else:
             npyscreen.notify_confirm("You cannot input an empty string", title="Weather is", wrap=True, wide=True, editw=1)
 
+    ## Store a new IP 
     def btn_press_get_IP(self):
         w = Weather()
-        w.write_ip_to_file()
-        npyscreen.notify_confirm("Succesfully wrote to file", title="Succes!", wrap=True, wide=True, editw=1)
+        ip = w.write_ip_to_file()
+        npyscreen.notify_confirm("Succesfully wrote IP: " + ip + " to file", title="Succes!", wrap=True, wide=True, editw=1)
 
 
+    ## Method for printing the forecast
+    def week_day_forecast(self, json):
+        long_string = ''  
+        list_weather = ""
+        list_temp = ""
+        list_date = ''
+
+        for i in range(0,4):
+            list_weather = json["consolidated_weather"][i]["weather_state_name"]
+            list_temp = json["consolidated_weather"][i]["the_temp"]
+            list_date = json["consolidated_weather"][i]["applicable_date"]
+
+            long_string += "Date: " + list_date + " weather is " + str(list_weather).lower() + " and the temperature is " + str(round(list_temp,1)) + "\n"
+        
+        return long_string
 
     
     def draw_sun(self, relx, rely):
