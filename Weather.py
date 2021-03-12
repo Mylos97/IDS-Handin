@@ -1,10 +1,8 @@
 import requests as re
 import json 
-import math
 
 ## API used in the project
 ## https://freegeoip.app/json/
-## https://ipinfo.io/161.185.160.93/
 ## https://www.metaweather.com/api/location/search/?query=london
 ## https://www.metaweather.com/api/location/554890/
 
@@ -12,40 +10,17 @@ import math
 ## Get json weather data
 class Weather:
 
-    def __init__(self):
-        self.ip_address = re.get(url = 'https://freegeoip.app/json')
-        self.ip_address_json = self.ip_address.json()
+    ## Get the city from the ip
+    def get_city_from_ip(self, ip):
+        ip_json = re.get(url = 'https://freegeoip.app/json/' + ip).json()
+        city = ip_json['city']
 
+        return city
 
-    ## Different variables for the city##
-        self.ip_address_city = self.ip_address_json["city"]
-        self.ip_address_country = self.ip_address_json["country_name"]
-        self.ip_address_latlon = (self.ip_address_json["latitude"],self.ip_address_json["longitude"])
-
-
-
-    def getWeatherFromCityIP(self):
-        weatherData=re.get(url='https://www.metaweather.com/api/location/search/?query='+self.ip_address_city)
-        weather_data_json = weatherData.json()
-
-        return weather_data_json
-
-    def getIP(self):
-        self.ip_address = re.get(url = 'https://freegeoip.app/json')
-        self.ip_address_json = self.ip_address.json()
-
-        return self.ip_address_json['ip']
-
+    ## Get weather from city
     def getWeatherFromCity(self,city):
         weatherData=re.get(url='https://www.metaweather.com/api/location/search/?query='+city)
         weather_data_json = weatherData.json()
-        return weather_data_json
-
-    ## Get Weather from lattlong
-    def getWeatherFromLattLong(self):
-        weatherData=re.get(url='https://www.metaweather.com/api/location/search/?lattlong='+str(self.ip_address_latlon[0])+','+str(self.ip_address_latlon[1]))
-        weather_data_json = weatherData.json()
-
         return weather_data_json
 
 
@@ -77,19 +52,17 @@ class Weather:
         return get_ip_json['ip']
 
 
-    ## Returns the saved ip from the file
+    ## Returns the saved ip from the file and checks if there is a IP stored
     def get_ip_from_file(self):
     
-        with open('ip_adress.txt') as f:
+        with open('ip_address.txt') as f:
             first_line = f.readline()
 
-        if len(first_line) < 0:
-            print("i got no ip")
+        ## Test if theres an ip stored in the textfile
+        if len(first_line) < 6:
             return '-1'
 
         else:
             return first_line  
     
-
-    ## Get the IP adress from the user ##
     
