@@ -19,11 +19,24 @@ class FirstForm(npyscreen.ActionFormMinimal):
     def create(self):
         self.add(npyscreen.TitleText, w_id="message", name= "How's the weather today?",editable = False, begin_entry_at= 12, relx = 2)
 
-        self.add(npyscreen.ButtonPress, name="Fecth Data from IP", when_pressed_function=self.btn_press, relx = 2)
+
+
+        self.add(npyscreen.ButtonPress, name="Fecth Data from stored IP", when_pressed_function=self.btn_press, relx = 2)
+        self.add(npyscreen.ButtonPress, name="Store a new IP", when_pressed_function=self.btn_press_get_IP, relx = 2)
         
-        self.add(npyscreen.TitleText, w_id="city", name= "CITY:", begin_entry_at= 8, relx = 4)
+        self.add(npyscreen.TitleText, w_id="empty line", name= " ",editable = False)
+
+        self.add(npyscreen.TitleText, w_id="city", name= "City:", begin_entry_at= 8, relx = 4)
         self.add(npyscreen.ButtonPress, name="Fecth Data from city", when_pressed_function=self.btn_press_city, relx = 2)
-        self.add(npyscreen.ButtonPress, name = "Switch", when_pressed_function = self.btn_press_switch, relx = 2)
+        
+
+        # If we get to making a second window
+        #self.add(npyscreen.ButtonPress, name = "Switch", when_pressed_function = self.btn_press_switch, relx = 2)
+
+        for i in range(0,7):
+            self.draw_sun((i*15) + 7,21)
+
+
 
 
     ## Fetch data from ip    
@@ -58,10 +71,11 @@ class FirstForm(npyscreen.ActionFormMinimal):
                 woeid = w.getWOEIDFromJSON(weather)
                 five_day_forecast = w.getWeatherForecast(woeid)
                 long_string = ''
-                for i in range(0,5):
-                    list_weather = weather_today = five_day_forecast["consolidated_weather"][i]["weather_state_name"]
-                    list_temp = five_day_forecast["consolidated_weather"][i]["the_temp"]
-                    long_string += "Weather is " + str(list_temp)[i] + "\n"  
+                
+                for i in range(0,4):
+                    list_weather = five_day_forecast["consolidated_weather"][i]["weather_state_name"]
+                    list_temp = str(five_day_forecast["consolidated_weather"][i]["the_temp"])
+                    long_string += "Weather is " + list_weather[i] + " cxivjixcjvixcjvixcjvixcjivjxciv" +"\n"  
                     #" and the temperature is " + str(list_temp[i])[:3] + "\n"
 
                 weather_today = five_day_forecast["consolidated_weather"][0]["weather_state_name"]
@@ -70,8 +84,8 @@ class FirstForm(npyscreen.ActionFormMinimal):
                 weather_today_temperature = five_day_forecast["consolidated_weather"][0]["the_temp"]
                 weather_tommorow_temperature = five_day_forecast["consolidated_weather"][1]["the_temp"]
                 
-                #npyscreen.notify_confirm(long_string, title="Weather is", wrap=True, wide=True, editw=1)  
-                npyscreen.notify_confirm("Weather today is " + weather_today + " and the temperature is " + str(weather_today_temperature)[:3] + "\n" + "Weather tommorow is " + weather_tommorow + " and the temperature is " + str(weather_tommorow_temperature)[:3], title="Weather forecast for " + city, wrap=True, wide=True, editw=1)  
+                npyscreen.notify_confirm(long_string, title="Weather is", wrap=True, wide=True, editw=1)  
+                #npyscreen.notify_confirm("Weather today is " + weather_today + " and the temperature is " + str(weather_today_temperature)[:3] + "\n" + "Weather tommorow is " + weather_tommorow + " and the temperature is " + str(weather_tommorow_temperature)[:3], title="Weather forecast for " + city, wrap=True, wide=True, editw=1)  
             
             else:
                 npyscreen.notify_confirm("Could not fetch data from that city", title="Weather is", wrap=True, wide=True, editw=1)  
@@ -81,6 +95,25 @@ class FirstForm(npyscreen.ActionFormMinimal):
         
         else:
             npyscreen.notify_confirm("You cannot input an empty string", title="Weather is", wrap=True, wide=True, editw=1)
+
+    def btn_press_get_IP(self):
+        w = Weather()
+        w.write_ip_to_file()
+        npyscreen.notify_confirm("Succesfully wrote to file", title="Succes!", wrap=True, wide=True, editw=1)
+
+
+
+    
+    def draw_sun(self, relx, rely):
+        self.add(npyscreen.TitleText, w_id="sun", name= "    |",editable = False, relx = relx,rely = rely)
+        self.add(npyscreen.TitleText, w_id="sun", name= "  \ | /" ,editable = False,  relx = relx,rely = rely+1)
+        self.add(npyscreen.TitleText, w_id="sun", name= "   \*/"  ,editable = False,  relx = relx,rely = rely+2)
+        self.add(npyscreen.TitleText, w_id="sun", name= "--**O**-- ",editable = False,  relx = relx,rely = rely+3)
+        self.add(npyscreen.TitleText, w_id="sun", name= "   /*\\",editable = False,  relx = relx,rely = rely+4)
+        self.add(npyscreen.TitleText, w_id="sun", name= "  / | \\",editable = False,  relx = relx,rely = rely+5)
+        self.add(npyscreen.TitleText, w_id="sun", name= "    |",editable = False,  relx = relx,rely = rely+6)
+
+
 
         
 
@@ -93,6 +126,9 @@ class FirstForm(npyscreen.ActionFormMinimal):
     def on_ok(self):
         self.parentApp.switchForm(None)
 
+
+
+## If we get to making a second form
 class SecondForm(npyscreen.ActionFormMinimal):
     def create(self):
         pass
